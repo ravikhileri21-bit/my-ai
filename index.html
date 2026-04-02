@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My AI 🤖</title>
+  <style>
+    body { font-family: Arial; background:#111; color:white; text-align:center; }
+    #chat { width: 90%; max-width: 500px; margin:auto; }
+    input { width: 70%; padding:10px; }
+    button { padding:10px; }
+    .msg { margin:10px; padding:10px; border-radius:10px; }
+    .user { background:#333; }
+    .ai { background:#0066ff; }
+  </style>
+</head>
+
+<body>
+
+<h2>My AI 🤖</h2>
+
+<div id="chat"></div>
+
+<input id="input" placeholder="Kuch bhi pucho..." />
+<button onclick="send()">Send</button>
+<button onclick="startVoice()">🎤 Speak</button>
+<script>
+async function send() {
+  let input = document.getElementById("input");
+  let msg = input.value;
+
+  let chat = document.getElementById("chat");
+
+  chat.innerHTML += `<div class='msg user'>${msg}</div>`;
+
+  let res = await fetch("https://unimitating-ann-unlaboring.ngrok-free.dev/chat", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({message: msg})
+  });
+
+  let data = await res.json();
+
+  chat.innerHTML += `<div class='msg ai'>${data.reply}</div>`;
+
+  // 🔊 AI bolega
+  let speech = new SpeechSynthesisUtterance(data.reply);
+  speechSynthesis.speak(speech);
+
+  input.value = "";
+}
+
+function startVoice() {
+  let recognition = new webkitSpeechRecognition();
+
+  recognition.onresult = function(event) {
+    let text = event.results[0][0].transcript;
+    document.getElementById("input").value = text;
+    send();
+  };
+
+  recognition.start();
+}
+</script>
+
+</body>
+</html>
